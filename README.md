@@ -1,1 +1,14 @@
-# image-caption-translation
+# Image Caption Translation
+
+## Setup
+
+Download the [dataset](http://personal.ee.surrey.ac.uk/Personal/T.Decampos/VisionLanguage/dataset/download.html) and put the `en-es` and `images-en-es` folders in the root directory.
+
+Install the required Python libraries with
+`pip install`
+
+Create a .env file with your Azure Translator API key and location in this format:
+```
+KEY=your_key
+LOCATION=your_location
+```
