@@ -8,7 +8,8 @@ class Data:
         self.spanishFile = open("en-es/reference.final.file-found")
         self.metadataFile = open("en-es/metadata.final.file-found")
 
-        self.azureFile = open("en-es/azure.final.file-found")
+        self.azureFile = open("machine-translations/azure.txt")
+        self.ibmFile = open("machine-translations/ibm.txt")
 
         self.indexMap = indexes()
             
@@ -20,7 +21,8 @@ class Data:
         if self.index < 27367:
             # Machine translations
             azureLine = self.azureFile.readline()
-            translations = [azureLine]
+            ibmLine = self.ibmFile.readline()
+            translations = [azureLine, ibmLine]
 
             # Original Spanish caption
             spanishLine = self.spanishFile.readline()

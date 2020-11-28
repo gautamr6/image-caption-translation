@@ -14,5 +14,5 @@ for inst in dt_iter:
 bleu = sacrebleu.corpus_bleu(pred, [refs])
 print(bleu.score)
 
-bleuIdentical = sacrebleu.corpus_bleu(refs, [refs])
-print(bleuIdentical.score)
+# bleuIdentical = sacrebleu.corpus_bleu(refs, [refs])
+# print(bleuIdentical.score)
