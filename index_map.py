@@ -4,6 +4,6 @@ def indexes():
 
     for line in f:
         sep = line.index("|||")
-        m[line[:sep]] = line[sep+3:]
+        m[line[:sep]] = line[sep+3:-1]
 
     return m
