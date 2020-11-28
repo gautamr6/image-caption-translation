@@ -6,9 +6,3 @@ Download the [dataset](http://personal.ee.surrey.ac.uk/Personal/T.Decampos/Visio
 
 Install the required Python libraries with
 `pip install`
-
-Create a .env file with your Azure Translator API key and location in this format:
-```
-KEY=your_key
-LOCATION=your_location
-```
