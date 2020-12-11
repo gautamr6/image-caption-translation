@@ -114,19 +114,19 @@ def main_func():
         i = i + 1
         if (i % 1000 == 0):
             print(i + "/27367 complete")
-        # image = transform(img).unsqueeze(0)
+        if (torch.sum(imageArray) == 0):
+            objects.append(max_ind)
+            max_ind = torch.zeros(1)
+            break 
         outputs = model(img)
         probas = outputs['pred_logits'].softmax(-1)[0, :, :-1]
         keep = probas.max(-1).values > 0.9
-        try:
-            max_prob, max_ind = torch.max(probas[keep], dim = 1)
-        except: 
-            max_ind = torch.zeros(1)
+        max_prob, max_ind = torch.max(probas[keep], dim = 1)
 
         f.write(str(max_ind) + "\n")
-        # objects.append(max_ind)
+        objects.append(max_ind)
     
-    # f.write(objects)
+    f.write(objects)
     f.close()
 
 main_func()
