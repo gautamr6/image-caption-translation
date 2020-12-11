@@ -38,7 +38,7 @@ COLORS = [[0.000, 0.447, 0.741], [0.850, 0.325, 0.098], [0.929, 0.694, 0.125],
 
 # standard PyTorch mean-std input image normalization
 transform = T.Compose([
-    T.Resize(800),
+    T.Resize(100),
     T.ToTensor(),
     T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
 ])
@@ -71,33 +71,55 @@ def plot_results(pil_img, prob, boxes):
     plt.axis('off')
     plt.show()
 
-
-model = torch.hub.load('facebookresearch/detr', 'detr_resnet50', pretrained=True)
-model.eval();
-
+class Data:
+    def __init__(self) -> None:
+        self.indexMap = indexes()
+            
+    def __iter__(self):
+        self.index = 1
+        return self
+    
+    def __next__(self):
+        if self.index < 27367:
+            # Machine translations
+            imageIndex = self.indexMap[metadataLine[:-1]]
+            imageFilename = "images-en-es/files/" + imageIndex[:-1]
+            try:
+                imageFile = Image.open(imageFilename)
+                imageArray = transform(imageFile).unsqueeze(0)
+            except:
+                imageArray = torch.from_numpy(np.zeros((100, 100, 3))).reshape(2,0,1).unsqueeze(0).float()
+            self.index += 1
+            return imageArray
+        else:
+            raise StopIteration
 
 def main_func():
-	# test
-	url = 'http://images.cocodataset.org/val2017/000000039769.jpg'
-	im = Image.open(requests.get(url, stream=True).raw)
+    model = torch.hub.load('facebookresearch/detr', 'detr_resnet50', pretrained=True)
+    model.eval();
 
-	# mean-std normalize the input image (batch-size: 1)
-	img = transform(im).unsqueeze(0)
+    dt = Data()
+    dt_iter = iter(dt)
 
-	# propagate through the model
-	outputs = model(img)
+    i = 0
 
-	# keep only predictions with 0.7+ confidence
-	probas = outputs['pred_logits'].softmax(-1)[0, :, :-1]
-	keep = probas.max(-1).values > 0.9
+    for img in dt_iter:
+        i = i + 1
+        if (i % 1000 == 0):
+            print(i + "/27367 complete")
+        img = transform(image).unsqueeze(0)
+        outputs = model(img)
+        probas = outputs['pred_logits'].softmax(-1)[0, :, :-1]
+        keep = probas.max(-1).values > 0.9
+        try:
+            max_prob, max_ind = torch.max(probas[keep], dim = 1)
+        except: 
+            max_ind = torch.zeros(1)
+        objects.append(max_ind)
 
-	# convert boxes from [0; 1] to image scales
-	bboxes_scaled = rescale_bboxes(outputs['pred_boxes'][0, keep], im.size)
-	plot_results(im, probas[keep], bboxes_scaled)
-
-
-
-
+    f = open("objects.txt", "w")
+    f.write(objects)
+    
 
 
 
