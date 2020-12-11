@@ -13,8 +13,9 @@ import torch
 from torch import nn
 from torchvision.models import resnet50
 import torchvision.transforms as T
-torch.set_grad_enabled(False);
+torch.set_grad_enabled(False)
 torch.set_printoptions(profile="full")
+import time
 
 # COCO classes
 CLASSES = [
@@ -40,7 +41,7 @@ COLORS = [[0.000, 0.447, 0.741], [0.850, 0.325, 0.098], [0.929, 0.694, 0.125],
 
 # standard PyTorch mean-std input image normalization
 transform = T.Compose([
-    T.Resize(100),
+    T.Resize((100, 100)),
     T.ToTensor(),
     T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
 ])
@@ -78,7 +79,6 @@ def plot_results(pil_img, prob, boxes):
 class Data:
     def __init__(self) -> None:
         pass
-        # self.indexMap = indexes()
             
     def __iter__(self):
         self.index = 1
@@ -86,8 +86,6 @@ class Data:
     
     def __next__(self):
         if self.index <= 27594:
-            # Machine translations
-            # imageIndex = self.indexMap[metadataLine[:-1]]
             imageFilename = "images-en-es/files/img" + str(self.index).zfill(8)
             try:
                 imageFile = Image.open(imageFilename)
@@ -101,32 +99,28 @@ class Data:
 
 def main_func():
     model = torch.hub.load('facebookresearch/detr', 'detr_resnet50', pretrained=True)
-    model.eval();
-
+    model.eval()
     dt = Data()
     dt_iter = iter(dt)
-
     i = 0
-
     f = open("objects.txt", "w")
 
-    for img in dt_iter:
+    for img in dt_iter: # iterate over all images in dataloader
         i = i + 1
-        if (i % 1000 == 0):
-            print(i + "/27367 complete")
-        if (torch.sum(imageArray) == 0):
-            objects.append(max_ind)
-            max_ind = torch.zeros(1)
-            break 
-        outputs = model(img)
+        if (i % 100 == 0):
+            print(str(i) + "/27594 complete")
+        if (torch.sum(img) == 0): # image could not be loaded
+            f.write("0\n")
+            continue
+        outputs = model(img.float())
         probas = outputs['pred_logits'].softmax(-1)[0, :, :-1]
         keep = probas.max(-1).values > 0.9
+        if (probas[keep].shape[0] == 0): # nothing was predicted
+            f.write("0\n")
+            continue
         max_prob, max_ind = torch.max(probas[keep], dim = 1)
-
-        f.write(str(max_ind) + "\n")
-        objects.append(max_ind)
-    
-    f.write(objects)
+        f.write(",".join([str(elem.numpy()) for elem in max_ind]) + "\n")
     f.close()
+
 
 main_func()
