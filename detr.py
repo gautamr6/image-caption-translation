@@ -1,9 +1,10 @@
 import math
+import numpy as np
 
 from PIL import Image
 import requests
 import matplotlib.pyplot as plt
-%config InlineBackend.figure_format = 'retina'
+# config InlineBackend.figure_format = 'retina'
 
 import ipywidgets as widgets
 from IPython.display import display, clear_output
@@ -13,6 +14,7 @@ from torch import nn
 from torchvision.models import resnet50
 import torchvision.transforms as T
 torch.set_grad_enabled(False);
+torch.set_printoptions(profile="full")
 
 # COCO classes
 CLASSES = [
@@ -42,6 +44,8 @@ transform = T.Compose([
     T.ToTensor(),
     T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
 ])
+
+transformEmpty = T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
 
 # for output bounding box post-processing
 def box_cxcywh_to_xyxy(x):
@@ -73,22 +77,23 @@ def plot_results(pil_img, prob, boxes):
 
 class Data:
     def __init__(self) -> None:
-        self.indexMap = indexes()
+        pass
+        # self.indexMap = indexes()
             
     def __iter__(self):
         self.index = 1
         return self
     
     def __next__(self):
-        if self.index < 27367:
+        if self.index <= 27594:
             # Machine translations
-            imageIndex = self.indexMap[metadataLine[:-1]]
-            imageFilename = "images-en-es/files/" + imageIndex[:-1]
+            # imageIndex = self.indexMap[metadataLine[:-1]]
+            imageFilename = "images-en-es/files/img" + str(self.index).zfill(8)
             try:
                 imageFile = Image.open(imageFilename)
                 imageArray = transform(imageFile).unsqueeze(0)
             except:
-                imageArray = torch.from_numpy(np.zeros((100, 100, 3))).reshape(2,0,1).unsqueeze(0).float()
+                imageArray = transformEmpty(torch.from_numpy(np.zeros((3, 100, 100)))).unsqueeze(0)
             self.index += 1
             return imageArray
         else:
@@ -103,11 +108,13 @@ def main_func():
 
     i = 0
 
+    f = open("objects.txt", "w")
+
     for img in dt_iter:
         i = i + 1
         if (i % 1000 == 0):
             print(i + "/27367 complete")
-        img = transform(image).unsqueeze(0)
+        # image = transform(img).unsqueeze(0)
         outputs = model(img)
         probas = outputs['pred_logits'].softmax(-1)[0, :, :-1]
         keep = probas.max(-1).values > 0.9
@@ -115,13 +122,11 @@ def main_func():
             max_prob, max_ind = torch.max(probas[keep], dim = 1)
         except: 
             max_ind = torch.zeros(1)
-        objects.append(max_ind)
 
-    f = open("objects.txt", "w")
-    f.write(objects)
+        f.write(str(max_ind) + "\n")
+        # objects.append(max_ind)
     
+    # f.write(objects)
+    f.close()
 
-
-
-
-
+main_func()
