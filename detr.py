@@ -123,4 +123,5 @@ def main_func():
     f.close()
 
 
-main_func()
+# main_func()
+print(len(CLASSES))

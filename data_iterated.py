@@ -1,4 +1,5 @@
 from index_map import indexes
+from get_objects import get_objects
 from PIL import Image
 import numpy as np
 
@@ -12,6 +13,7 @@ class Data:
         self.ibmFile = open("machine-translations/ibm.txt")
 
         self.indexMap = indexes()
+        self.objects = get_objects()
             
     def __iter__(self):
         self.index = 1
@@ -34,13 +36,18 @@ class Data:
             metadataLine = self.metadataFile.readline()
             imageIndex = self.indexMap[metadataLine[:-1]]
             imageFilename = "images-en-es/files/" + imageIndex[:-1]
+
             try:
                 imageFile = Image.open(imageFilename)
                 imageArray = np.asarray(imageFile)
             except:
                 imageArray = np.zeros([100, 100, 3])
 
+            # Objects
+            imageNumber = int(imageIndex[3:]) - 1
+            imageObjects = self.objects[imageNumber]
+
             self.index += 1
-            return (imageArray, spanishLine, translations, englishLine)
+            return (imageArray, imageObjects, spanishLine, translations, englishLine)
         else:
             raise StopIteration
