@@ -1,5 +1,9 @@
 .DS_Store
 
+# Shaya
+evaluate_translations.ipynb
+word2vec_pretrained.txt
+
 # Dataset
 en-es/
 images-en-es/*
