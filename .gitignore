@@ -2,7 +2,7 @@
 
 # Dataset
 en-es/
-images-en-es/
+images-en-es/*
 !images-en-es/wikipedia.images.indexes
 
 # Byte-compiled / optimized / DLL files
