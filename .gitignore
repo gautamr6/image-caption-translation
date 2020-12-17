@@ -1,7 +1,6 @@
 .DS_Store
 
-# Shaya
-evaluate_translations.ipynb
+# Word Embeddings
 word2vec_pretrained.txt
 
 # Dataset
