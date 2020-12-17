@@ -1,18 +1,42 @@
 import sacrebleu
-from data import Data
+from data_stored import get_stored_data
 
-dt = Data()
-dt_iter = iter(dt)
+(referenceData, translationData, objectData) = get_stored_data()
 
-pred = []
+# (referenceDataRaw, translationDataRaw, objectData) = get_stored_data()
+
+# translationData = []
+# for elem in translationDataRaw:
+#     newElem = []
+#     for trans in elem:
+#         if trans[-2:] == ' .':
+#             newElem.append(trans[:-2] + '.')
+#         else:
+#             newElem.append(trans)
+#     translationData.append(newElem)
+
+# referenceData = []
+# for elem in referenceDataRaw:
+#     if elem[-2:] == ' .':
+#         # print('hi')
+#         referenceData.append(elem[:-2] + '.')
+#     else:
+#         referenceData.append(elem)
+
+azurePred = []
+ibmPred = []
 refs = []
 
-for inst in dt_iter:
-    pred.append(inst[2][0])
-    refs.append(inst[3])
+for i in range(len(referenceData)):
+    azurePred.append(translationData[i][0])
+    ibmPred.append(translationData[i][1])
+    refs.append(referenceData[i])
 
-bleu = sacrebleu.corpus_bleu(pred, [refs])
-print(bleu.score)
+azureBleu = sacrebleu.corpus_bleu(azurePred, [refs])
+print("Azure: " + str(azureBleu.score))
+
+ibmBleu = sacrebleu.corpus_bleu(ibmPred, [refs])
+print("IBM: " + str(ibmBleu.score))
 
 # bleuIdentical = sacrebleu.corpus_bleu(refs, [refs])
-# print(bleuIdentical.score)
+# print("Identical: " + str(bleuIdentical.score))

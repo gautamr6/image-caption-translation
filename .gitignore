@@ -1,8 +1,12 @@
 .DS_Store
 
+# Word Embeddings
+word2vec_pretrained.txt
+
 # Dataset
 en-es/
-images-en-es/
+images-en-es/*
+!images-en-es/wikipedia.images.indexes
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
