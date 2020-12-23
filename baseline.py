@@ -25,18 +25,31 @@ from data_stored import get_stored_data
 
 azurePred = []
 ibmPred = []
+selectPred = []
 refs = []
 
 for i in range(len(referenceData)):
-    azurePred.append(translationData[i][0])
-    ibmPred.append(translationData[i][1])
-    refs.append(referenceData[i])
+    azureTrans = translationData[i][0]
+    ibmTrans = translationData[i][1]
+    ref = referenceData[i]
+
+    azureScore = sacrebleu.corpus_bleu([azureTrans], [[ref]])
+    ibmScore = sacrebleu.corpus_bleu([ibmTrans], [[ref]])
+    selectTrans = azureTrans if azureScore.score > ibmScore.score else ibmTrans
+
+    azurePred.append(azureTrans)
+    ibmPred.append(ibmTrans)
+    selectPred.append(selectTrans)
+    refs.append(ref)
 
 azureBleu = sacrebleu.corpus_bleu(azurePred, [refs])
 print("Azure: " + str(azureBleu.score))
 
 ibmBleu = sacrebleu.corpus_bleu(ibmPred, [refs])
 print("IBM: " + str(ibmBleu.score))
+
+selectBleu = sacrebleu.corpus_bleu(selectPred, [refs])
+print("Correct Selections: " + str(selectBleu.score))
 
 # bleuIdentical = sacrebleu.corpus_bleu(refs, [refs])
 # print("Identical: " + str(bleuIdentical.score))
